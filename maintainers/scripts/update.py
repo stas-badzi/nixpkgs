@@ -15,6 +15,9 @@ import tempfile
 Order = Literal["arbitrary", "reverse-topological", "topological"]
 
 
+FAKE_ROOT_FOR_INDEPENDENT_DEPENDENCIES = "::fake_root_for_independent_dependencies"
+
+
 class CalledProcessError(Exception):
     process: asyncio.subprocess.Process
     stderr: bytes | None
@@ -116,10 +119,20 @@ def requisites_to_attrs(
 def reverse_edges(graph: dict[str, set[str]]) -> dict[str, set[str]]:
     """
     Flips the edges of a directed graph.
+
+    Packages without any dependency relation in the updated set
+    will be added to `FAKE_ROOT_FOR_INDEPENDENT_DEPENDENCIES` node.
     """
 
     reversed_graph: dict[str, set[str]] = {}
     for dependent, dependencies in graph.items():
+        if not dependencies:
+            reversed_graph.setdefault(
+                FAKE_ROOT_FOR_INDEPENDENT_DEPENDENCIES,
+                set(),
+            ).add(dependent)
+            continue
+
         for dependency in dependencies:
             reversed_graph.setdefault(dependency, set()).add(dependent)
 
@@ -413,6 +426,8 @@ async def populate_queue(
         ready_packages = list(sorter.get_ready())
         eprint(f"Enqueuing group of {len(ready_packages)} packages")
         for package in ready_packages:
+            if package == FAKE_ROOT_FOR_INDEPENDENT_DEPENDENCIES:
+                continue
             await packages_to_update.put(attr_packages[package])
         await packages_to_update.join()
         sorter.done(*ready_packages)
