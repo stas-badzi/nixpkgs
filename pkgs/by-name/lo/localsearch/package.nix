@@ -19,11 +19,11 @@
   bzip2,
   dbus,
   exempi,
+  ffmpeg,
   giflib,
   glib,
   gobject-introspection,
   gnome,
-  gst_all_1,
   icu,
   json-glib,
   libcue,
@@ -39,7 +39,6 @@
   libtiff,
   libuuid,
   libxml2,
-  networkmanager,
   poppler,
   systemd,
   taglib,
@@ -87,16 +86,11 @@ stdenv.mkDerivation (finalAttrs: {
       bzip2
       dbus
       exempi
+      ffmpeg
       giflib
       gexiv2
       totem-pl-parser
       tinysparql
-      gst_all_1.gst-plugins-base
-      gst_all_1.gst-plugins-good
-      gst_all_1.gst-plugins-bad
-      gst_all_1.gst-plugins-ugly
-      gst_all_1.gstreamer
-      gst_all_1.gst-libav
       icu
       json-glib
       libcue
@@ -116,7 +110,6 @@ stdenv.mkDerivation (finalAttrs: {
     ]
     ++ lib.optionals stdenv.hostPlatform.isLinux [
       libseccomp
-      networkmanager
       systemd
       upower
     ]
